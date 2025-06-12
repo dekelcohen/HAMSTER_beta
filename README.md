@@ -50,7 +50,7 @@ cd ..
 3. Set up the VILA environment:
 ```bash
 cd VILA
-./environment_setup.py vila
+./environment_setup.sh vila
 conda activate vila
 cd ..
 ```
