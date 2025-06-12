@@ -11,7 +11,7 @@ from datetime import datetime
 
 GRIPPER_CLOSE = 0
 GRIPPER_OPEN = 1
-MODEL = "HAMSTER_dev"
+MODEL = "Hamster_dev"
 
 # Attempt to load the server IP from file at the beginning.
 server_ip_file = "./ip_eth0.txt"
