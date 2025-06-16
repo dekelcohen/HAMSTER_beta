@@ -221,8 +221,10 @@ def process_image_and_quest(image, quest, max_tokens, temperature, top_p, crop_t
     image = preprocess_image(image, crop_type)
     response_text = send_request(image, quest, max_tokens, temperature, top_p)
     try:
-        response_text_strip = re.search(r'<ans>(.*?)</ans>', response_text, re.DOTALL).group(1)
+        response_text_strip = response_text # re.search(r'<ans>(.*?)</ans>', response_text, re.DOTALL).group(1)
+        print(f'LLM response: {response_text_strip}')
         points = process_answer(response_text_strip)
+        print(f'Extracte d points from LLM response: {points}')
         output_image = draw_lines_on_image_cv(image.copy(), points, draw_action=True)
     except:
         output_image = image
