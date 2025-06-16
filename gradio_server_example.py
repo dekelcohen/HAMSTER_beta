@@ -120,6 +120,47 @@ def draw_lines_on_image_cv(image, points, draw_action=False, num_subdivisions=10
     return image
 
 def process_answer(input_str):
+    """Extract keypoints from the model response, with or without brackets/parentheses."""
+    # Normalize everything into a flat sequence of tokens: floats and action-tags
+    token_pattern = re.compile(
+        r'(-?\d+\.\d+)'                        # a float
+        r'|(<action>Close Gripper</action>)'   # close tag
+        r'|(<action>Open Gripper</action>)'    # open tag
+    )
+    tokens = list(token_pattern.finditer(input_str))
+
+    processed_points = []
+    action_flag = 0
+
+    i = 0
+    while i < len(tokens):
+        m = tokens[i]
+        if m.group(1):  # it's a float
+            x = float(m.group(1))
+            # look ahead for the next float (y)
+            if i + 1 < len(tokens) and tokens[i+1].group(1):
+                y = float(tokens[i+1].group(1))
+                processed_points.append([x, y, action_flag])
+                i += 2
+            else:
+                # malformed: skip this number
+                i += 1
+        else:
+            # it's an action tag
+            tag = m.group(2) or m.group(3)
+            if processed_points:
+                if tag == '<action>Close Gripper</action>':
+                    action_flag = GRIPPER_CLOSE
+                else:
+                    action_flag = GRIPPER_OPEN
+                # overwrite the flag on the *last* point
+                processed_points[-1][-1] = action_flag
+            i += 1
+
+    return processed_points
+
+
+def process_answer_old(input_str):
     """Extract keypoints from the model response."""
     input_str = input_str.replace('<action>Close Gripper</action>', '(1000.0, 1000.0)').replace('<action>Open Gripper</action>', '(1001.0, 1001.0)')
     keypoints = eval(input_str)
